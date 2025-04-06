@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "dev": "SET NODE_ENV=DEVELOPEMENT && nodemon app.js"
+    "dev": "SET NODE_ENV=DEVELOPEMENT && nodemon app.js",
+     "build": "cd client && npm install && npm run build"
   },
   "author": "",
   "license": "ISC",
