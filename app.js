@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Tell Express where to find static files like HTML, JS, CSS
-app.use(express.static(path.join(__dirname, "client", "dist")));
+app.use(express.static(path.join(__dirname, "client-dist")));
 
 
 const PORT = process.env.PORT;
@@ -44,8 +44,6 @@ app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(express.json());
 
-// Static assets
-app.use(express.static(path.join(__dirname, "client", "dist")));
 
 // API routes
 app.use("/api/v1/user", userRoute);
@@ -61,7 +59,7 @@ export const imagekit = new ImageKit({
 
 // HTML template loader
 const getHtmlWithMeta = ({ title, description, image, url }) => {
-  const indexPath = path.join(__dirname, "client", "dist", "index.html");
+  const indexPath = path.join(__dirname, "client-dist", "dist", "index.html");
   let html = fs.readFileSync(indexPath, "utf-8");
 
   return html
