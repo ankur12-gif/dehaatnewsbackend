@@ -11,17 +11,13 @@ import NodeCache from "node-cache";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Posts } from "./src/models/posts.js";
+import { Posts } from "./src/models/posts.js"; // <-- Added
 
 dotenv.config({ path: "./.env" });
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Tell Express where to find static files like HTML, JS, CSS
-app.use(express.static(path.join(__dirname, "../client-dist")));
-
 
 const PORT = process.env.PORT;
 
@@ -32,34 +28,26 @@ export const envMode = process.env.NODE_ENV || "PRODUCTION";
 const mongoUri = process.env.MONGO_URI;
 export const myCache = new NodeCache();
 
-const corsOptions = {
-  // origin: [
-  //   "http://localhost:5173",
-  //   "http://localhost:4173",
-  //   process.env.CLIENT_URL,"*"
-  // ],
-  //credentials: true,
-  origin: "*"
-};
-
-app.use(cors(corsOptions));
+app.use(cors({ origin: "*" }));
 app.use(morgan("dev"));
 app.use(express.json());
 
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "client-dist")));
 
-// API routes
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/posts", postsRoute);
-app.use("/api/v1/sponsors", sponsorsRoute);
-
-// ImageKit
+// ImageKit config
 export const imagekit = new ImageKit({
   publicKey: process.env.PUBLIC_KEY,
   privateKey: process.env.PRIVATE_KEY,
   urlEndpoint: process.env.URL_ENDPOINT,
 });
 
-// HTML template loader
+// Routes
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/posts", postsRoute);
+app.use("/api/v1/sponsors", sponsorsRoute);
+
+// Meta tag injector
 const getHtmlWithMeta = ({ title, description, image, url }) => {
   const indexPath = path.join(__dirname, "client-dist", "index.html");
   let html = fs.readFileSync(indexPath, "utf-8");
@@ -73,45 +61,32 @@ const getHtmlWithMeta = ({ title, description, image, url }) => {
     .replace(/{{MODIFIED_DATE}}/g, new Date().toISOString());
 };
 
-// Dynamic route for individual posts (example)
-// Dynamic route for individual posts (SEO for social share)
-app.get("/post/:slug", async (req, res) => {
-  const slug = req.params.slug;
-
+// Dynamic Meta route for /viewfull/:id
+app.get("/viewfull/:id", async (req, res) => {
   try {
-    // 1. Check cache first
-    let post = myCache.get(slug);
+    const id = req.params.id;
+    const post = await Posts.findById(id).lean();
 
-    // 2. Fetch from DB if not in cache
     if (!post) {
-      post = await Posts.findOne({ slug });
-
-      if (!post) {
-        return res.status(404).send("Post not found");
-      }
-
-      // 3. Cache the post (10 mins)
-      myCache.set(slug, post, 600);
+      return res.status(404).send("Post not found");
     }
 
-    // 4. Prepare meta data
-    const meta = {
-      title: post.title,
-      description: post.description,
+    const metadata = {
+      title: post.title || "Dehaat News",
+      description: post.description || "Latest update from Dehaat News",
       image: post.photos?.[0]?.url || `${process.env.CLIENT_URL}/dehaatnews.png`,
-      url: `${process.env.CLIENT_URL}/post/${slug}`,
+      url: `${process.env.CLIENT_URL}/viewfull/${id}`,
     };
 
-    // 5. Inject and serve
-    const html = getHtmlWithMeta(meta);
+    const html = getHtmlWithMeta(metadata);
     res.send(html);
-  } catch (err) {
-    console.error("Error loading post for SEO:", err);
-    res.status(500).send("Something went wrong");
+  } catch (error) {
+    console.error("Error generating meta:", error);
+    res.status(500).send("Server error");
   }
 });
 
-// Catch-all for React (client-side routing)
+// Catch-all route for SPA
 app.get("*", (req, res) => {
   const html = getHtmlWithMeta({
     title: "Dehaat News - Stay Updated",
@@ -122,16 +97,17 @@ app.get("*", (req, res) => {
   res.send(html);
 });
 
+// Start server
 const initializeServer = async () => {
   try {
     AdminPassKey = await hashPassword(process.env.ADMIN_PASS_KEY);
     await connectToMongoDB(mongoUri);
 
     app.listen(PORT, () => {
-      console.log(`App is listening on port ${PORT}`);
+      console.log(`✅ Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Error initializing server:", error);
+    console.error("❌ Error initializing server:", error);
   }
 };
 
