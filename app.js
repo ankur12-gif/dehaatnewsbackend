@@ -59,7 +59,7 @@ export const imagekit = new ImageKit({
 
 // HTML template loader
 const getHtmlWithMeta = ({ title, description, image, url }) => {
-  const indexPath = path.join(__dirname, "client-dist", "dist", "index.html");
+  const indexPath = path.join(__dirname, "client-dist", "index.html");
   let html = fs.readFileSync(indexPath, "utf-8");
 
   return html
