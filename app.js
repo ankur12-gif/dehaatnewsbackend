@@ -20,7 +20,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Tell Express where to find static files like HTML, JS, CSS
-app.use(express.static(path.join(__dirname, "client-dist")));
+app.use(express.static(path.join(__dirname, "../client-dist")));
 
 
 const PORT = process.env.PORT;
