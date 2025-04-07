@@ -15,6 +15,7 @@ const schema = new Schema(
                 url: { type: String, required: [true, "Please enter url"] },
             },
         ],
+        slug: { type: String, required: true, unique: true }, // ✅ Added this
     },
     { timestamps: true }
 );

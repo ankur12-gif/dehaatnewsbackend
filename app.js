@@ -11,6 +11,7 @@ import NodeCache from "node-cache";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { Posts } from "./src/models/posts.js";
 
 dotenv.config({ path: "./.env" });
 const app = express();
@@ -73,19 +74,41 @@ const getHtmlWithMeta = ({ title, description, image, url }) => {
 };
 
 // Dynamic route for individual posts (example)
+// Dynamic route for individual posts (SEO for social share)
 app.get("/post/:slug", async (req, res) => {
   const slug = req.params.slug;
 
-  // Ideally, fetch post from DB
-  const post = myCache.get(slug) || {
-    title: `Post: ${slug}`,
-    description: "Default description for SEO",
-    image: `${process.env.CLIENT_URL}/dehaatnews.png`,
-    url: `${process.env.CLIENT_URL}/post/${slug}`,
-  };
+  try {
+    // 1. Check cache first
+    let post = myCache.get(slug);
 
-  const html = getHtmlWithMeta(post);
-  res.send(html);
+    // 2. Fetch from DB if not in cache
+    if (!post) {
+      post = await Posts.findOne({ slug });
+
+      if (!post) {
+        return res.status(404).send("Post not found");
+      }
+
+      // 3. Cache the post (10 mins)
+      myCache.set(slug, post, 600);
+    }
+
+    // 4. Prepare meta data
+    const meta = {
+      title: post.title,
+      description: post.description,
+      image: post.photos?.[0]?.url || `${process.env.CLIENT_URL}/dehaatnews.png`,
+      url: `${process.env.CLIENT_URL}/post/${slug}`,
+    };
+
+    // 5. Inject and serve
+    const html = getHtmlWithMeta(meta);
+    res.send(html);
+  } catch (err) {
+    console.error("Error loading post for SEO:", err);
+    res.status(500).send("Something went wrong");
+  }
 });
 
 // Catch-all for React (client-side routing)
