@@ -37,7 +37,7 @@ const corsOptions = {
     "http://localhost:4173",
     process.env.CLIENT_URL,"*"
   ],
-  credentials: true,
+  //credentials: true,
 };
 
 app.use(cors(corsOptions));
