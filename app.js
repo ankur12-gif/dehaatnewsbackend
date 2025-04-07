@@ -32,12 +32,13 @@ const mongoUri = process.env.MONGO_URI;
 export const myCache = new NodeCache();
 
 const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:4173",
-    process.env.CLIENT_URL,"*"
-  ],
+  // origin: [
+  //   "http://localhost:5173",
+  //   "http://localhost:4173",
+  //   process.env.CLIENT_URL,"*"
+  // ],
   //credentials: true,
+  origin: "*"
 };
 
 app.use(cors(corsOptions));
