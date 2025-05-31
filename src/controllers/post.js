@@ -19,17 +19,13 @@ const createPost = TryCatch(async (req, res) => {
 
     const photosUrl = await uploadToImageKit(photos);
 
-    // const post = await Posts.create({
-    //     title,
-    //     description,
-    //     category,
-    //     photos: [
-    //         {
-    //             public_id: 'hedsdsd', // ✅ ImageKit uses fileId instead of public_id
-    //             url: "https://ik.imagekit.io/cxa7ojrtpq/uploads/1_Yj9KgxMor.jpg",
-    //         }
-    //     ],
-    // });
+    const post = await Posts.create({
+        title,
+        description,
+        category,
+        photos: photosUrl,
+           
+    });
 
     myCache.del("allPosts");
     return res.status(201).json({ success: true, message: "Post created successfully" });
