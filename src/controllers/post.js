@@ -14,22 +14,22 @@ const createPost = TryCatch(async (req, res) => {
 
     console.log({title})
 
-    // if (!photos) return next(new Error("Please upload photos", 400));
-    // if (!title || !description || !category) return next(new Error("Please enter all fields"));
+    if (!photos) return next(new Error("Please upload photos", 400));
+    if (!title || !description || !category) return next(new Error("Please enter all fields"));
 
-    // const photosUrl = await uploadToImageKit(photos);
+    const photosUrl = await uploadToImageKit(photos);
 
-    const post = await Posts.create({
-        title,
-        description,
-        category,
-        photos: [
-            {
-                public_id: 'hedsdsd', // ✅ ImageKit uses fileId instead of public_id
-                url: "https://ik.imagekit.io/cxa7ojrtpq/uploads/1_Yj9KgxMor.jpg",
-            }
-        ],
-    });
+    // const post = await Posts.create({
+    //     title,
+    //     description,
+    //     category,
+    //     photos: [
+    //         {
+    //             public_id: 'hedsdsd', // ✅ ImageKit uses fileId instead of public_id
+    //             url: "https://ik.imagekit.io/cxa7ojrtpq/uploads/1_Yj9KgxMor.jpg",
+    //         }
+    //     ],
+    // });
 
     myCache.del("allPosts");
     return res.status(201).json({ success: true, message: "Post created successfully" });
@@ -76,10 +76,10 @@ const getSinglePost = TryCatch(async (req, res, next) => {
         return res.status(200).json({ success: true, post: cachedPost });
     }
 
-    const post = await Posts.findById("6836ee28071f223f25d6331c");
+    const post = await Posts.findById(postId);
     if (!post) return next(new Error("Post does not exist", 400));
 
-    myCache.set(`post_${"6836ee28071f223f25d6331c"}`, post, TTL);
+    myCache.set(`post_${postId}`, post, TTL);
     return res.status(200).json({ success: true, post });
 });
 
