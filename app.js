@@ -8,6 +8,7 @@ import fetch from "node-fetch";
 import ImageKit from "imagekit";
 import NodeCache from "node-cache";
 import { fileURLToPath } from "url";
+import path from "path";
 
 import { connectToMongoDB, hashPassword } from "./src/utils/features.js";
 import userRoute from "./src/routes/admin.js";
