@@ -12,8 +12,6 @@ const createPost = TryCatch(async (req, res) => {
     const { title, description, category } = req.body;
     const photos = req.files;
 
-    console.log({title})
-
     if (!photos) return next(new Error("Please upload photos", 400));
     if (!title || !description || !category) return next(new Error("Please enter all fields"));
 
@@ -24,7 +22,6 @@ const createPost = TryCatch(async (req, res) => {
         description,
         category,
         photos: photosUrl,
-           
     });
 
     myCache.del("allPosts");
