@@ -84,40 +84,25 @@ app.get("/viewfull/:id", async (req, res) => {
     const pageUrl = `${process.env.CLIENT_URL}/viewfull/${id}`;
 
     const html = `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>${title}</title>
-      <meta name="description" content="${description}" />
-
-      <!-- Open Graph Meta Tags (for Facebook/LinkedIn) -->
-      <meta property="og:title" content="${title}" />
-      <meta property="og:description" content="${description}" />
-      <meta property="og:image" content="${imageUrl}" />
-      <meta property="og:url" content="${pageUrl}" />
-      <meta property="og:type" content="article" />
-
-      <!-- Twitter Meta Tags -->
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="${title}" />
-      <meta name="twitter:description" content="${description}" />
-      <meta name="twitter:image" content="${imageUrl}" />
-      <meta name="twitter:url" content="${pageUrl}" />
-
-      <!-- Fallback and other SEO -->
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-    </head>
-    <body>
-      <div id="root"></div>
-      <script>
-        window.__PRELOADED_STATE__ = ${JSON.stringify(post)};
-      </script>
-      <script src="/static/js/main.js"></script>
-      <script>
-        window.location.href = "${pageUrl}";
-      </script>
-    </body>
-  </html>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${title}</title>
+        <meta name="description" content="${description}" />
+        <meta property="og:image" content="${imageUrl}" />
+        <!-- other meta tags -->
+      </head>
+      <body>
+        <div id="root"></div>
+        <script>
+          window.__PRELOADED_STATE__ = ${JSON.stringify(post)};
+        </script>
+        <script src="/static/js/main.js"></script>
+           <script>
+                window.location.href = "${pageUrl}";
+            </script>
+      </body>
+    </html>
   `;
 
     res.send(html);
